@@ -23,7 +23,7 @@ const (
 	logConsole    = "console"
 )
 
-var Dlog hlog.FullLogger
+var Oceanlog hlog.FullLogger
 
 func InitOceanLog(LogFileName, logFormat string, level hlog.Level) {
 	// Provides compression and deletion
@@ -48,7 +48,7 @@ func InitOceanLog(LogFileName, logFormat string, level hlog.Level) {
 	ologger.SetLevel(level)
 
 	hlog.SetLogger(ologger)
-	Dlog = ologger
+	Oceanlog = ologger
 }
 
 func getLumberjackLogger(fileName string) *lumberjack.Logger {
