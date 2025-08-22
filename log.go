@@ -23,9 +23,9 @@ const (
 	logConsole    = "console"
 )
 
-var Oceanlog hlog.FullLogger
+//var Oceanlog hlog.FullLogger
 
-func InitOceanLog(LogFileName, logFormat string, level hlog.Level) {
+func InitOceanLog(LogFileName, logFormat string, level hlog.Level) *Logger {
 	// Provides compression and deletion
 	lumberjackLogger := getLumberjackLogger(LogFileName)
 	iw := io.MultiWriter(lumberjackLogger, os.Stdout) // os.Stdout, logger.Gin.Writer()
@@ -47,8 +47,9 @@ func InitOceanLog(LogFileName, logFormat string, level hlog.Level) {
 	ologger.SetOutput(iw)
 	ologger.SetLevel(level)
 
-	hlog.SetLogger(ologger)
-	Oceanlog = ologger
+	//hlog.SetLogger(ologger)
+	//Oceanlog = ologger
+	return ologger
 }
 
 func getLumberjackLogger(fileName string) *lumberjack.Logger {

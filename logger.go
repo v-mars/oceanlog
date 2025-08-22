@@ -26,7 +26,7 @@ import (
 	"os"
 )
 
-// var _ hlog.FullLogger = (*Logger)(nil)
+var _ hlog.FullLogger = (*Logger)(nil)
 
 const (
 	LogIDKey = "request_id"
