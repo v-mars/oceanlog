@@ -30,21 +30,19 @@ func DefaultLogger() *Logger {
 // SetLogger sets the default logs.
 // Note that this method is not concurrent-safe and must not be called
 // after the use of DefaultLogger and global functions in this package.
-func SetLogger[T Logger | hlog.FullLogger](v *T) {
-	switch t := any(v).(type) {
-	case *Logger:
-		logger = t
-	case *hlog.FullLogger:
-		// 如果传入的是 hlog.FullLogger 接口指针，需要进一步处理
-		// 这种情况实际上不太可能直接出现
-		if l, ok := any(*t).(*Logger); ok {
-			logger = l
-		}
-	default:
-		// 对于其他情况，我们需要确保传入的是实现了 hlog.FullLogger 的 *Logger 类型
-		if l, ok := any(v).(*Logger); ok {
-			logger = l
-		}
+func SetLogger(v interface{}) {
+	if v == nil {
+		return
+	}
+
+	// 类型断言检查
+	if l, ok := v.(*Logger); ok {
+		// 添加并发保护
+		loggerMutex.Lock()
+		defer loggerMutex.Unlock()
+
+		logger = l
+		return
 	}
 }
 

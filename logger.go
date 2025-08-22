@@ -24,6 +24,7 @@ import (
 	"github.com/rs/zerolog"
 	"io"
 	"os"
+	"sync"
 )
 
 var _ hlog.FullLogger = (*Logger)(nil)
@@ -311,4 +312,26 @@ func newLogger(log zerolog.Logger, options []Opt) *Logger {
 		level:   opts.level,
 		options: options,
 	}
+}
+
+var loggerMutex sync.Mutex
+
+func (l *Logger) SetLogger(v interface{}) {
+	// 检查输入是否为nil
+	if v == nil {
+		return
+	}
+
+	// 类型断言检查
+	if l, ok := v.(*Logger); ok {
+		// 添加并发保护
+		loggerMutex.Lock()
+		defer loggerMutex.Unlock()
+
+		logger = l
+		return
+	}
+
+	// 可选：添加类型不匹配的日志记录
+	// log.Printf("SetLogger: expected *Logger, got %T", v)
 }
