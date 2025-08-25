@@ -3,6 +3,7 @@ package oceanlog
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -24,7 +25,7 @@ const (
 
 //var Oceanlog hlog.FullLogger
 
-func InitOceanLog(LogFileName, logFormat string, level Level) *DefaultLogger {
+func InitOceanLog(LogFileName, logFormat string, level hlog.Level) *DefaultLogger {
 	// Provides compression and deletion
 	lumberjackLogger := getLumberjackLogger(LogFileName)
 	iw := io.MultiWriter(lumberjackLogger, os.Stdout) // os.Stdout, logger.Gin.Writer()

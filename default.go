@@ -2,6 +2,7 @@ package oceanlog
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 )
 
@@ -17,7 +18,7 @@ func SetOutput(w io.Writer) {
 // SetLevel sets the level of logs below which logs will not be output.
 // The default log level is LevelTrace.
 // Note that this method is not concurrent-safe.
-func SetLevel(lv Level) {
+func SetLevel(lv hlog.Level) {
 	logger.SetLevel(lv)
 }
 
