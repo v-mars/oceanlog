@@ -1,8 +1,7 @@
-package oceanlog
+package main
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 )
 
@@ -18,25 +17,25 @@ func SetOutput(w io.Writer) {
 // SetLevel sets the level of logs below which logs will not be output.
 // The default log level is LevelTrace.
 // Note that this method is not concurrent-safe.
-func SetLevel(lv hlog.Level) {
+func SetLevel(lv Level) {
 	logger.SetLevel(lv)
 }
 
-// DefaultLogger return the default logs for kitex.
-func DefaultLogger() *Logger {
+// GetDefaultLogger return the default logs for kitex.
+func GetDefaultLogger() *DefaultLogger {
 	return logger
 }
 
 // SetLogger sets the default logs.
 // Note that this method is not concurrent-safe and must not be called
-// after the use of DefaultLogger and global functions in this package.
+// after the use of GetDefaultLogger and global functions in this package.
 func SetLogger(v interface{}) {
 	if v == nil {
 		return
 	}
 
 	// 类型断言检查
-	if l, ok := v.(*Logger); ok {
+	if l, ok := v.(*DefaultLogger); ok {
 		// 添加并发保护
 		loggerMutex.Lock()
 		defer loggerMutex.Unlock()

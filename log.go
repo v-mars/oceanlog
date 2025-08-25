@@ -1,9 +1,8 @@
-package oceanlog
+package main
 
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -25,7 +24,7 @@ const (
 
 //var Oceanlog hlog.FullLogger
 
-func InitOceanLog(LogFileName, logFormat string, level hlog.Level) *Logger {
+func InitOceanLog(LogFileName, logFormat string, level Level) *DefaultLogger {
 	// Provides compression and deletion
 	lumberjackLogger := getLumberjackLogger(LogFileName)
 	iw := io.MultiWriter(lumberjackLogger, os.Stdout) // os.Stdout, logger.Gin.Writer()
@@ -77,10 +76,10 @@ func (c *LogConf) GetHzLog(ctx context.Context) *hertzlogrus.Logger {
 		writers = append(writers, os.Stdout)
 	}
 	iw := io.MultiWriter(writers...) // os.Stdout, logger.Gin.Writer()
-	logger := hertzlogrus.NewLogger(hertzlogrus.WithLogger(logrus.New()))
-	temp := logger.Logger()
+	lo := hertzlogrus.NewLogger(hertzlogrus.WithLogger(logrus.New()))
+	temp := lo.Logger()
 	// 设置日志格式为json格式
-	//temp := hlog.Logger{}
+	//temp := hlog.DefaultLogger{}
 	if c.Formatter == "json" {
 		temp.SetFormatter(&logrus.JSONFormatter{})
 	} else {
@@ -97,7 +96,7 @@ func (c *LogConf) GetHzLog(ctx context.Context) *hertzlogrus.Logger {
 		temp.SetLevel(logrus.InfoLevel)
 	}
 
-	return logger
+	return lo
 }
 
 func (c *LogConf) GetLogrusLog() *logrus.Logger {

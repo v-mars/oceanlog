@@ -14,36 +14,35 @@
  * limitations under the License.
  */
 
-package oceanlog
+package main
 
 import (
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/rs/zerolog"
 )
 
 var (
-	zerologLevels = map[hlog.Level]zerolog.Level{
-		hlog.LevelTrace:  zerolog.TraceLevel,
-		hlog.LevelDebug:  zerolog.DebugLevel,
-		hlog.LevelInfo:   zerolog.InfoLevel,
-		hlog.LevelWarn:   zerolog.WarnLevel,
-		hlog.LevelNotice: zerolog.WarnLevel,
-		hlog.LevelError:  zerolog.ErrorLevel,
-		hlog.LevelFatal:  zerolog.FatalLevel,
+	zerologLevels = map[Level]zerolog.Level{
+		LevelTrace:  zerolog.TraceLevel,
+		LevelDebug:  zerolog.DebugLevel,
+		LevelInfo:   zerolog.InfoLevel,
+		LevelWarn:   zerolog.WarnLevel,
+		LevelNotice: zerolog.WarnLevel,
+		LevelError:  zerolog.ErrorLevel,
+		LevelFatal:  zerolog.FatalLevel,
 	}
 
-	hlogLevels = map[zerolog.Level]hlog.Level{
-		zerolog.TraceLevel: hlog.LevelTrace,
-		zerolog.DebugLevel: hlog.LevelDebug,
-		zerolog.InfoLevel:  hlog.LevelInfo,
-		zerolog.WarnLevel:  hlog.LevelWarn,
-		zerolog.ErrorLevel: hlog.LevelError,
-		zerolog.FatalLevel: hlog.LevelFatal,
+	hlogLevels = map[zerolog.Level]Level{
+		zerolog.TraceLevel: LevelTrace,
+		zerolog.DebugLevel: LevelDebug,
+		zerolog.InfoLevel:  LevelInfo,
+		zerolog.WarnLevel:  LevelWarn,
+		zerolog.ErrorLevel: LevelError,
+		zerolog.FatalLevel: LevelFatal,
 	}
 )
 
 // matchHlogLevel map hlog.Level to zerolog.Level
-func matchHlogLevel(level hlog.Level) zerolog.Level {
+func matchHlogLevel(level Level) zerolog.Level {
 	zlvl, found := zerologLevels[level]
 
 	if found {
@@ -53,7 +52,7 @@ func matchHlogLevel(level hlog.Level) zerolog.Level {
 	return zerolog.WarnLevel // Default level
 }
 func MatchLevel(lv interface{}) zerolog.Level {
-	lve, ok := lv.(hlog.Level)
+	lve, ok := lv.(Level)
 	if !ok {
 		return zerolog.WarnLevel
 	}
@@ -67,12 +66,12 @@ func MatchLevel(lv interface{}) zerolog.Level {
 }
 
 // matchZerologLevel map zerolog.Level to hlog.Level
-func matchZerologLevel(level zerolog.Level) hlog.Level {
+func matchZerologLevel(level zerolog.Level) Level {
 	hlvl, found := hlogLevels[level]
 
 	if found {
 		return hlvl
 	}
 
-	return hlog.LevelWarn // Default level
+	return LevelWarn // Default level
 }

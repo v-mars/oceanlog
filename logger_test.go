@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package oceanlog
+package main
 
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"testing"
 
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -48,15 +47,15 @@ func TestGetLogger_notSet(t *testing.T) {
 	_, err := GetLogger()
 
 	assert.Error(t, err)
-	assert.Equal(t, "hlog.DefaultLogger is not a zerolog logger", err.Error())
+	assert.Equal(t, "GetDefaultLogger is not a zerolog logger", err.Error())
 }
 
 func TestGetLogger(t *testing.T) {
-	hlog.SetLogger(New())
-	logger, err := GetLogger()
+	//hlog.SetLogger(New())
+	lo, err := GetLogger()
 
 	assert.NoError(t, err)
-	assert.IsType(t, Logger{}, logger)
+	assert.IsType(t, DefaultLogger{}, lo)
 }
 
 func TestWithContext(t *testing.T) {
@@ -82,22 +81,22 @@ func TestLoggerWithField(t *testing.T) {
 		Message string `json:"message"`
 	}
 
-	log := &Log{}
+	lo := &Log{}
 
-	err := json.Unmarshal(b.Bytes(), log)
+	err := json.Unmarshal(b.Bytes(), lo)
 
 	println(b.String())
 	assert.NoError(t, err)
-	assert.Equal(t, "logging", log.Service)
+	assert.Equal(t, "logging", lo.Service)
 }
 
 func TestUnwrap(t *testing.T) {
 	l := New()
 
-	logger := l.Unwrap()
+	lo := l.Unwrap()
 
-	assert.NotNil(t, logger)
-	assert.IsType(t, zerolog.Logger{}, logger)
+	assert.NotNil(t, lo)
+	assert.IsType(t, zerolog.Logger{}, lo)
 }
 
 func TestLog(t *testing.T) {
@@ -317,12 +316,60 @@ func TestCtxErrorf(t *testing.T) {
 func TestSetLevel(t *testing.T) {
 	l := New()
 
-	l.SetLevel(hlog.LevelDebug)
+	l.SetLevel(LevelDebug)
 	assert.Equal(t, l.log.GetLevel(), zerolog.DebugLevel)
 
-	l.SetLevel(hlog.LevelDebug)
+	l.SetLevel(LevelDebug)
 	assert.Equal(t, l.log.GetLevel(), zerolog.DebugLevel)
 
-	l.SetLevel(hlog.LevelError)
+	l.SetLevel(LevelError)
 	assert.Equal(t, l.log.GetLevel(), zerolog.ErrorLevel)
+}
+
+// TestNewConsole_Integration 测试整个 ConsoleWriter 的集成行为
+// TestNewConsole_FormatCaller_WrongType 测试 FormatCaller 函数处理错误类型输入
+func TestNewConsole_FormatCaller_WrongType(t *testing.T) {
+	// Arrange: 准备测试数据
+	buffer := &bytes.Buffer{}
+	console := NewConsole(buffer)
+
+	testCases := []interface{}{
+		123,        // 整数
+		[]string{}, // 切片
+		struct{}{}, // 结构体
+		true,       // 布尔值
+	}
+
+	// Act & Assert: 对每个测试用例执行测试
+	for _, tc := range testCases {
+		result := console.FormatCaller(tc)
+		if result != "" {
+			t.Errorf("FormatCaller(%v): expected empty string for wrong type, but got %s", tc, result)
+		}
+	}
+
+}
+
+// TestNewConsole_FormatCaller_Normal 测试 FormatCaller 函数的正常情况
+func TestNewConsole_FormatCaller_Normal(t *testing.T) {
+	// Arrange: 准备测试数据
+	buffer := &bytes.Buffer{}
+	console := NewConsole(buffer)
+
+	testCases := []struct {
+		input    interface{}
+		expected string
+	}{
+		{"/path/to/logger_test.go:76", "logger_test.go:"},
+		{"main.go:123", "main.go:"},
+		{"C:\\windows\\path\\test.go:456", "test.go:"}, // Windows 路径测试
+	}
+
+	// Act & Assert: 对每个测试用例执行测试
+	for _, tc := range testCases {
+		result := console.FormatCaller(tc.input)
+		if result != tc.expected {
+			t.Errorf("FormatCaller(%v): expected %s, but got %s", tc.input, tc.expected, result)
+		}
+	}
 }

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package oceanlog
+package main
 
 import (
 	"io"
 
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/rs/zerolog"
 )
 
@@ -53,7 +52,7 @@ func WithOutput(out io.Writer) Opt {
 }
 
 // WithLevel allows to specify the level of the logger. By default, it is set to WarnLevel.
-func WithLevel(level hlog.Level) Opt {
+func WithLevel(level Level) Opt {
 	lvl := matchHlogLevel(level)
 	return func(opts *Options) {
 		opts.context = opts.context.Logger().Level(lvl).With()
