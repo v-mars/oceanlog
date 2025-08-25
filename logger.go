@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/rs/zerolog"
 	"io"
 	"os"
@@ -11,7 +12,7 @@ import (
 	"sync"
 )
 
-var _ FullLogger = (*DefaultLogger)(nil)
+var _ hlog.FullLogger = (*DefaultLogger)(nil)
 
 const (
 	LogIDKey = "request_id"
@@ -108,13 +109,6 @@ func GetLogger() (DefaultLogger, error) {
 	//}
 
 	return DefaultLogger{}, errors.New("GetDefaultLogger is not a zerolog logger")
-}
-
-// SetLevel setting logging level for logger
-func (l *DefaultLogger) SetLevel(level Level) {
-	lvl := matchHlogLevel(level)
-	l.level = lvl
-	l.log = l.log.Level(lvl)
 }
 
 // SetOutput setting output for logger
@@ -330,15 +324,23 @@ func (l *DefaultLogger) SetLogger(v interface{}) {
 	}
 
 	// 类型断言检查
-	if l, ok := v.(*DefaultLogger); ok {
+	tmp, ok := v.(*DefaultLogger)
+	if ok {
 		// 添加并发保护
 		loggerMutex.Lock()
 		defer loggerMutex.Unlock()
 
-		logger = l
+		l = tmp
 		return
 	}
 
 	// 可选：添加类型不匹配的日志记录
 	// log.Printf("SetLogger: expected *DefaultLogger, got %T", v)
+}
+
+// SetLevel setting logging level for logger
+func (l *DefaultLogger) SetLevel(level hlog.Level) {
+	lvl := matchHlogLevel(level)
+	l.level = lvl
+	l.log = l.log.Level(lvl)
 }
